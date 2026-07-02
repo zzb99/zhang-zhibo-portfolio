@@ -1,0 +1,12 @@
+<svg width="900" height="1300" viewBox="0 0 900 1300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1300" rx="96" fill="#0A0A0A"/>
+  <rect x="44" y="44" width="812" height="1212" rx="70" stroke="white" stroke-opacity="0.16" stroke-width="4"/>
+  <circle cx="450" cy="210" r="72" fill="white" fill-opacity="0.08"/>
+  <text x="90" y="410" fill="white" font-family="Arial, sans-serif" font-size="70" font-weight="800" letter-spacing="-3">ZHANG</text>
+  <text x="90" y="500" fill="white" font-family="Arial, sans-serif" font-size="70" font-weight="800" letter-spacing="-3">ZHIBO</text>
+  <text x="90" y="610" fill="#93C5FD" font-family="Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="6">PORTFOLIO CARD</text>
+  <rect x="90" y="720" width="720" height="2" fill="white" fill-opacity="0.18"/>
+  <text x="90" y="820" fill="white" fill-opacity="0.74" font-family="Arial, sans-serif" font-size="34">Student · Operation · AI</text>
+  <text x="90" y="890" fill="white" fill-opacity="0.46" font-family="Arial, sans-serif" font-size="28">Shijiazhuang, China</text>
+  <text x="90" y="1110" fill="white" fill-opacity="0.35" font-family="Arial, sans-serif" font-size="24" letter-spacing="4">ID / 2026 / ZZB</text>
+</svg>

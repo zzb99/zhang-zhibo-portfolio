@@ -1,0 +1,17 @@
+node_modules/
+dist/
+
+.codex/
+.agents/
+
+*.zip
+figma-*.png
+Gemini上传版源码/
+张智博个人网站源码/
+
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example

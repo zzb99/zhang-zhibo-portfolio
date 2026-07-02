@@ -1,0 +1,12 @@
+<svg width="900" height="1300" viewBox="0 0 900 1300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="1300" rx="96" fill="#F8FBFF"/>
+  <rect x="44" y="44" width="812" height="1212" rx="70" stroke="#0A0A0A" stroke-opacity="0.12" stroke-width="4"/>
+  <text x="90" y="220" fill="#0A0A0A" font-family="Arial, sans-serif" font-size="54" font-weight="800">CONTACT</text>
+  <text x="90" y="330" fill="#4B5563" font-family="Arial, sans-serif" font-size="34">zzb9999@outlook.com</text>
+  <text x="90" y="410" fill="#4B5563" font-family="Arial, sans-serif" font-size="34">156 3112 4118</text>
+  <rect x="90" y="520" width="720" height="2" fill="#0A0A0A" fill-opacity="0.12"/>
+  <text x="90" y="650" fill="#0A0A0A" font-family="Arial, sans-serif" font-size="42" font-weight="800">AWARDS · RESEARCH</text>
+  <text x="90" y="730" fill="#64748B" font-family="Arial, sans-serif" font-size="30">National honors · Patents · Projects</text>
+  <circle cx="690" cy="1030" r="90" fill="#60A5FA" fill-opacity="0.18"/>
+  <circle cx="745" cy="1085" r="58" fill="#A78BFA" fill-opacity="0.18"/>
+</svg>
