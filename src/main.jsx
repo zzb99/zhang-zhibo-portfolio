@@ -1,115 +1,134 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import '@fontsource-variable/inter';
-import PageSections, { Tags } from './sections/PageSections';
-import { navItems } from './data/content';
+import {
+  BrowserRouter,
+  Link,
+  Route,
+  Routes,
+  useLocation,
+  useSearchParams,
+} from 'react-router-dom';
+import '@fontsource-variable/geist';
+import ProofDrawer from './components/ProofDrawer';
+import { navItems, proofArchive, projects } from './data/content';
 import { useActiveSection, useReveal } from './hooks/usePageEffects';
+import ProjectPage from './routes/ProjectPage';
+import StitchPortfolio from './sections/StitchPortfolio';
+import { AppleGlassButton } from './components/AppleComponents';
+import AdminDashboard from './routes/AdminDashboard';
+import { ExhibitionProvider } from './data/exhibitionStore';
 import './style.css';
 
 document.documentElement.classList.add('js');
 
+function ScrollManager() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (pathname !== '/') {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      return;
+    }
+
+    if (!hash) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [hash, pathname]);
+
+  return null;
+}
+
 function Header() {
-  const { active, scrolled } = useActiveSection(navItems);
-  const activeIndex = Math.max(0, navItems.findIndex(([id]) => id === active));
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+  const isAdmin = location.pathname.startsWith('/admin');
+  const { active, scrolled } = useActiveSection(navItems, { enabled: isHome });
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => setMenuOpen(false), [location.pathname, location.hash]);
+
+  if (isAdmin) return null;
+
+  const navHref = (id) => (isHome ? `#${id}` : `/#${id}`);
+
   return (
-    <header className={`header ${scrolled ? 'is-compact' : ''}`}>
-      <nav
-        className={`nav-pill ${active === 'about' ? 'about-active' : ''}`}
-        aria-label="主导航"
-        style={{
-          '--active-index': activeIndex,
-          '--mobile-active-index': Math.max(0, activeIndex - 1),
-          '--nav-items': navItems.length,
-        }}
-      >
-        {navItems.map(([id, label]) => (
-          <a key={id} href={`#${id}`} className={active === id ? 'active' : ''}>{label}</a>
-        ))}
+    <header className={`header site-header ${scrolled ? 'is-compact' : ''} ${menuOpen ? 'is-menu-open' : ''}`}>
+      <nav className="site-nav" aria-label="主导航">
+        <div className="site-nav__left">
+          <Link className="site-brand" to="/#about">张智博</Link>
+          <div className="site-nav__links" id="primary-navigation">
+            {navItems.map(([id, label]) => (
+              <Link key={id} to={navHref(id)} className={isHome && active === id ? 'active' : ''}>{label}</Link>
+            ))}
+          </div>
+        </div>
+        <div className="site-nav__actions">
+          {!isHome && <Link className="site-back" to="/#projects">返回项目</Link>}
+          <AppleGlassButton className="apple-glass-button--nav site-contact" to={navHref('contact')} variant="prominent">联系</AppleGlassButton>
+          <button
+            className="site-menu-toggle"
+            type="button"
+            aria-label={menuOpen ? '关闭导航菜单' : '打开导航菜单'}
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
+            onClick={() => setMenuOpen((value) => !value)}
+          >
+            <i /><i />
+          </button>
+        </div>
       </nav>
     </header>
   );
 }
 
-function ProjectDrawer({ project, onClose }) {
-  const closeRef = useRef(null);
-  const dialogRef = useRef(null);
-
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    const previouslyFocused = document.activeElement;
-    document.body.style.overflow = 'hidden';
-    closeRef.current?.focus();
-    const onKey = (event) => {
-      if (event.key === 'Escape') {
-        onClose();
-        return;
-      }
-      if (event.key !== 'Tab' || !dialogRef.current) return;
-
-      const focusable = [...dialogRef.current.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      )].filter((element) => element.getClientRects().length > 0);
-      if (!focusable.length) return;
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener('keydown', onKey);
-      if (previouslyFocused instanceof HTMLElement && previouslyFocused.isConnected) {
-        previouslyFocused.focus();
-      }
-    };
-  }, [onClose]);
-
-  return (
-    <div className="drawer-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <article ref={dialogRef} className="project-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
-        <button ref={closeRef} className="drawer-close" onClick={onClose} aria-label="关闭详情">×</button>
-        <div className="drawer-topline">
-          <span>{project.eyebrow}</span>
-          <span>PROJECT DETAIL</span>
-        </div>
-        <h2 id="drawer-title">{project.title}</h2>
-        <h3>{project.statement}</h3>
-        <p className="drawer-summary">{project.summary}</p>
-        <div className="drawer-metrics">
-          {project.metrics.map(([value, label]) => (
-            <div key={label}><strong>{value}</strong><span>{label}</span></div>
-          ))}
-        </div>
-        <div className="drawer-detail-grid">
-          <span>WHAT I DID</span>
-          <ol>{project.details.map((detail) => <li key={detail}>{detail}</li>)}</ol>
-        </div>
-        <Tags items={project.tags} />
-      </article>
-    </div>
-  );
-}
-
-function App() {
+function HomePage() {
   useReveal();
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const proofId = searchParams.get('proof');
+  const proofItem = proofArchive.find((item) => item.id === proofId);
+  const proofProject = proofItem ? projects[proofItem.projectId] : null;
+
+  const openProof = (id) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('proof', id);
+    setSearchParams(next);
+  };
+
+  const closeProof = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('proof');
+    setSearchParams(next, { replace: true });
+  };
 
   return (
     <>
-      <Header />
-      <PageSections onSelectProject={setSelectedProject} />
-
-      <footer><span>© 2026 ZHANG ZHIBO</span><span>DESIGNED FOR IMPACT · BUILT FOR DELIVERY</span></footer>
-      {selectedProject && <ProjectDrawer project={selectedProject} onClose={() => setSelectedProject(null)} />}
+      <StitchPortfolio onSelectProof={openProof} />
+      {proofProject && <ProofDrawer project={proofProject} onClose={closeProof} />}
     </>
   );
 }
 
-createRoot(document.getElementById('root')).render(<App />);
+function App() {
+  return (
+    <>
+      <ScrollManager />
+      <Header />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/projects/:slug" element={<ProjectPage />} />
+        <Route path="*" element={<ProjectPage />} />
+      </Routes>
+    </>
+  );
+}
+
+createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <ExhibitionProvider>
+      <App />
+    </ExhibitionProvider>
+  </BrowserRouter>,
+);

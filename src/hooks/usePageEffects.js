@@ -1,34 +1,50 @@
 import { useEffect, useState } from 'react';
 
-export function useActiveSection(navItems) {
+export function useActiveSection(navItems, { enabled = true } = {}) {
   const [active, setActive] = useState('about');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const sections = navItems.map(([id]) => document.getElementById(id)).filter(Boolean);
-    let frame = 0;
-    const update = () => {
-      const probe = window.scrollY + 180;
-      let current = 'about';
-      sections.forEach((section) => {
-        if (section.offsetTop <= probe) current = section.id;
-      });
-      setActive(current);
+    if (!enabled) {
+      setActive(null);
       setScrolled(window.scrollY > 72);
+      return undefined;
+    }
+
+    const sections = navItems.map(([id]) => document.getElementById(id)).filter(Boolean);
+    const activateVisibleSection = () => {
+      const viewportAnchor = window.innerHeight * 0.32;
+      const sectionAtAnchor = sections.find((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= viewportAnchor && rect.bottom >= viewportAnchor;
+      });
+
+      if (sectionAtAnchor) setActive(sectionAtAnchor.id);
     };
-    const onScroll = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(update);
+
+    const observer = new IntersectionObserver(() => {
+      activateVisibleSection();
+    }, {
+      threshold: [0, 0.1, 0.25, 0.5],
+      rootMargin: '-20% 0px -55% 0px',
+    });
+
+    sections.forEach((section) => observer.observe(section));
+
+    const updatePageState = () => {
+      setScrolled(window.scrollY > 72);
+      const atPageBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atPageBottom && sections.at(-1)) setActive(sections.at(-1).id);
+      else activateVisibleSection();
     };
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+
+    updatePageState();
+    window.addEventListener('scroll', updatePageState, { passive: true });
     return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      observer.disconnect();
+      window.removeEventListener('scroll', updatePageState);
     };
-  }, [navItems]);
+  }, [enabled, navItems]);
 
   return { active, scrolled };
 }

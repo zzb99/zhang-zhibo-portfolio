@@ -41,16 +41,6 @@ export default function HorizontalShelf({ children, ariaLabel, className = '', t
     trackRef.current?.scrollBy({ left: direction * cardDistance(), behavior: 'smooth' });
   };
 
-  const handleWheel = (event) => {
-    const track = trackRef.current;
-    if (!track || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
-    const movingForward = event.deltaY > 0;
-    if ((movingForward && canScrollForward) || (!movingForward && canScrollBack)) {
-      event.preventDefault();
-      track.scrollBy({ left: event.deltaY, behavior: 'auto' });
-    }
-  };
-
   const handleKeyDown = (event) => {
     if (event.key === 'ArrowRight') {
       event.preventDefault();
@@ -72,7 +62,6 @@ export default function HorizontalShelf({ children, ariaLabel, className = '', t
         className={`horizontal-shelf__track ${trackClassName}`}
         tabIndex="0"
         onKeyDown={handleKeyDown}
-        onWheel={handleWheel}
         aria-label={`${ariaLabel}，可左右滚动`}
       >
         {children}

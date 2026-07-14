@@ -74,7 +74,4 @@
     scroll-padding-inline: 14px;
   }
 
-  .horizontal-shelf__track > * {
-    flex-basis: 82vw;
-  }
 }
